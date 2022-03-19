@@ -17,13 +17,25 @@ tagsRouter.get('/', async (req, res) => {
 });
 
 tagsRouter.get('/:tagName/posts', async (req, res, next) => {
+
+    const { tagName } = req.params;
+
     try {
-        const { tagName } = req.params;
         const posts = await getPostsByTagName(tagName);
-      res.send ({ posts })
+
+        const taggedPosts = posts.filter(post => {
+            if (post.active && post.author.id === req.user.id) {
+                return true;
+            }
+            return false;
+        })
+
+      res.send ({ taggedPosts })
+
     } catch ({ name, message }) {
-      next({ name: 'tag error', message: 'Wrong tag'});
-    }
-  });
+      next({ name: 'tag error', message: 'Wrong tag!'
+    });
+  }
+});
 
 module.exports = tagsRouter;

@@ -43,7 +43,15 @@ postsRouter.get('/', async (req, res, next) => {
       const allPosts = await getAllPosts();
   
       const posts = allPosts.filter(post => {
-        // keep a post if it is either active, or if it belongs to the current user
+        if (post.active) {
+          return true;
+        }
+      
+        if (req.user && post.author.id === req.user.id) {
+          return true;
+        }
+      
+        return false;
       });
   
       res.send({
@@ -98,7 +106,6 @@ postsRouter.patch('/:postId', requireUser, async (req, res, next) => {
   
         res.send({ post: updatedPost });
       } else {
-        // if there was a post, throw UnauthorizedUserError, otherwise throw PostNotFoundError
         next(post ? { 
           name: "UnauthorizedUserError",
           message: "You cannot delete a post which is not yours"
